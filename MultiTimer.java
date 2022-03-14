@@ -1,12 +1,23 @@
 import java.awt.*;
 import javax.swing.*;
-class StudyTimer {
+class MultiTimer {
 
+    //pomodoro
+    private JLabel pomLabel;
     private JButton pomStartBtn;
     private JButton pomResetBtn;
 
-    public StudyTimer(){
+    //general
+    private JLabel genLabel;
+    private JButton genStartBtn;
+    private JButton genResetBtn;
 
+    //global
+    private JButton globalStartBtn;
+    private JButton globalResetBtn;
+
+    public MultiTimer(){
+        createJFrame();
     }
 
     private void createJFrame() {
@@ -15,7 +26,7 @@ class StudyTimer {
         frame.setSize(600,300);
         
         frame.add(createPanel());
-        
+
         frame.setLocationByPlatform(true);
         frame.setVisible(true);
     }
@@ -27,16 +38,17 @@ class StudyTimer {
         c.fill = GridBagConstraints.HORIZONTAL;
         c.ipadx = 0;
 
-        JLabel label1 = new JLabel();
-        label1.setText("Pomodoro: 25:00");
-        label1.setBounds(50, 50, 100, 30);
-        label1.setFont(new Font("Verdana", Font.PLAIN, 18));
-        label1.setForeground(Color.RED);
+        //Pomodoro
+        pomLabel = new JLabel();
+        pomLabel.setText("Pomodoro: 25:00");
+        pomLabel.setBounds(50, 50, 100, 30);
+        pomLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
+        pomLabel.setForeground(Color.RED);
         c.weightx = 0.5;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
         c.gridy = 0;
-        panel.add(label1, c);
+        panel.add(pomLabel, c);
 
         pomStartBtn = new JButton("Start/Pause");
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -45,40 +57,41 @@ class StudyTimer {
         c.gridy = 0;
         panel.add(pomStartBtn, c);
 
-        JButton button2 = new JButton("Reset");
+        pomResetBtn = new JButton("Reset");
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 0.5;
         c.gridx = 2;
         c.gridy = 0;
-        panel.add(button2, c);
+        panel.add(pomResetBtn, c);
 
-        JLabel label2 = new JLabel();
-        label2.setText("General Timer: 30:00");
-        label2.setFont(new Font("Verdana", Font.PLAIN, 18));
+        //General
+        genLabel = new JLabel();
+        genLabel.setText("General Timer: 30:00");
+        genLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         c.insets = new Insets(10,0,0,0);  //top padding
         c.weightx = 0.5;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
         c.gridy = 1;
-        panel.add(label2, c);
+        panel.add(genLabel, c);
 
-        JButton button3 = new JButton("Start/Pause");
+        genStartBtn = new JButton("Start/Pause");
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(10,0,0,0);  //top padding
         c.weightx = 0.5;
         c.gridx = 1;
         c.gridy = 1;
-        panel.add(button3, c);
+        panel.add(genStartBtn, c);
 
-        JButton button4 = new JButton("Reset");
+        genResetBtn = new JButton("Reset");
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(10,0,0,0);  //top padding
         c.weightx = 0.5;
         c.gridx = 2;
         c.gridy = 1;
-        panel.add(button4, c);
+        panel.add(genResetBtn, c);
 
-        JButton button5 = new JButton("Start/Pause All");
+        globalStartBtn = new JButton("Start/Pause All");
         c.fill = GridBagConstraints.HORIZONTAL;
         c.ipady = 0;       //reset to default
         c.weighty = 1.0;   //request any extra vertical space
@@ -87,9 +100,9 @@ class StudyTimer {
         c.gridx = 1;       //aligned with button 2
         c.gridwidth = 1;   //2 columns wide
         c.gridy = 2;       //third row
-        panel.add(button5, c);
+        panel.add(globalStartBtn, c);
 
-        JButton button6 = new JButton("Reset All");
+        globalResetBtn = new JButton("Reset All");
         c.fill = GridBagConstraints.HORIZONTAL;
         c.ipady = 0;       //reset to default
         c.weighty = 1.0;   //request any extra vertical space
@@ -98,7 +111,7 @@ class StudyTimer {
         c.gridx = 2;       //aligned with button 2
         c.gridwidth = 1;   //2 columns wide
         c.gridy = 2;       //third row
-        panel.add(button6, c);
+        panel.add(globalResetBtn, c);
         
         return panel;
     }
@@ -107,8 +120,7 @@ class StudyTimer {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                StudyTimer t = new StudyTimer();
-                t.createJFrame();
+                MultiTimer t = new MultiTimer();
             }
         });
     }

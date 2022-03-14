@@ -1,5 +1,5 @@
-# Study-Timer
-- desktop timer made with Java
+# Multi-Timer
+- multiple timer desktop app made with Java
 
 ## Dependencies
 - Swing
