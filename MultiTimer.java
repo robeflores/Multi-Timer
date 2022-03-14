@@ -21,9 +21,9 @@ class MultiTimer {
     }
 
     private void createJFrame() {
-        JFrame frame = new JFrame("Study Timer");
+        JFrame frame = new JFrame("Multi Timer");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600,300);
+        frame.setSize(700,200);
         
         frame.add(createPanel());
 
@@ -41,9 +41,9 @@ class MultiTimer {
         //Pomodoro
         pomLabel = new JLabel();
         pomLabel.setText("Pomodoro: 25:00");
-        pomLabel.setBounds(50, 50, 100, 30);
         pomLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         pomLabel.setForeground(Color.RED);
+        c.insets = new Insets(10,10,0,0);
         c.weightx = 0.5;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
@@ -52,6 +52,7 @@ class MultiTimer {
 
         pomStartBtn = new JButton("Start/Pause");
         c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(10,0,0,0);
         c.weightx = 0.5;
         c.gridx = 1;
         c.gridy = 0;
@@ -59,6 +60,7 @@ class MultiTimer {
 
         pomResetBtn = new JButton("Reset");
         c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(10,0,0,10);
         c.weightx = 0.5;
         c.gridx = 2;
         c.gridy = 0;
@@ -68,7 +70,7 @@ class MultiTimer {
         genLabel = new JLabel();
         genLabel.setText("General Timer: 30:00");
         genLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
-        c.insets = new Insets(10,0,0,0);  //top padding
+        c.insets = new Insets(10,10,0,0);
         c.weightx = 0.5;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
@@ -77,7 +79,7 @@ class MultiTimer {
 
         genStartBtn = new JButton("Start/Pause");
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(10,0,0,0);  //top padding
+        c.insets = new Insets(10,0,0,0);
         c.weightx = 0.5;
         c.gridx = 1;
         c.gridy = 1;
@@ -85,18 +87,19 @@ class MultiTimer {
 
         genResetBtn = new JButton("Reset");
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(10,0,0,0);  //top padding
+        c.insets = new Insets(10,0,0,10); 
         c.weightx = 0.5;
         c.gridx = 2;
         c.gridy = 1;
         panel.add(genResetBtn, c);
 
+        //Global
         globalStartBtn = new JButton("Start/Pause All");
         c.fill = GridBagConstraints.HORIZONTAL;
         c.ipady = 0;       //reset to default
         c.weighty = 1.0;   //request any extra vertical space
         c.anchor = GridBagConstraints.PAGE_END; //bottom of space
-        c.insets = new Insets(0,0,0,0);  //top padding
+        c.insets = new Insets(0,0,10,0);
         c.gridx = 1;       //aligned with button 2
         c.gridwidth = 1;   //2 columns wide
         c.gridy = 2;       //third row
@@ -107,7 +110,7 @@ class MultiTimer {
         c.ipady = 0;       //reset to default
         c.weighty = 1.0;   //request any extra vertical space
         c.anchor = GridBagConstraints.PAGE_END; //bottom of space
-        c.insets = new Insets(0,0,0,0);  //top padding
+        c.insets = new Insets(0,0,10,10);  //top padding
         c.gridx = 2;       //aligned with button 2
         c.gridwidth = 1;   //2 columns wide
         c.gridy = 2;       //third row
