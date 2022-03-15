@@ -14,7 +14,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
         POMODORO, GENERAL
     }
 
-    final int POMTIME = 1500;
+    final int POMTIME = 5;
     final int GENTIME = 1800;
 
     int pomTimeLeft = POMTIME;
@@ -57,6 +57,8 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
                 @Override
                 public void run() {
                     frame.toFront();
+                    frame.setVisible(true);
+                    frame.requestFocus();
                     frame.repaint();
                 }
             });
