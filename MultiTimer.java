@@ -14,7 +14,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
         POMODORO, GENERAL
     }
 
-    final int POMTIME = 5;
+    final int POMTIME = 1500;
     final int GENTIME = 1800;
 
     int pomTimeLeft = POMTIME;
@@ -53,8 +53,17 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
 
         @Override
         public void done() {
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    frame.toFront();
+                    frame.repaint();
+                }
+            });
         }
     }
+
+    private JFrame frame;
 
     //pomodoro
     private JLabel pomLabel;
@@ -77,7 +86,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
     }
 
     private void createJFrame() {
-        JFrame frame = new JFrame("Multi Timer");
+        frame = new JFrame("Multi Timer");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(700,200);
         
