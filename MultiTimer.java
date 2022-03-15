@@ -207,6 +207,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
         if(pomTimeLeft%60 < 10)
             pomLabel.setText(pomLabel.getText() + "0");
         pomLabel.setText(pomLabel.getText() + pomTimeLeft%60);
+        pomStartBtn.setText("Start");
     }
     void StartGeneral(){
         if(genWorker != null && !genWorker.isDone()){
@@ -228,6 +229,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
         if(genTimeLeft%60 < 10)
             genLabel.setText(genLabel.getText() + "0");
         genLabel.setText(genLabel.getText() + genTimeLeft%60);
+        genStartBtn.setText("Start");
     }
 
 
