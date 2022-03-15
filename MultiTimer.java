@@ -14,40 +14,45 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
         POMODORO, GENERAL
     }
 
-    int pomTime = 1459;
-    int genTime = 2000;
+    final int POMTIME = 5;
+    final int GENTIME = 1800;
 
-    class TimerTask extends SwingWorker<Void, Void>{
+    int pomTimeLeft = POMTIME;
+    int genTimeLeft = GENTIME;
+
+    class TimerWorker extends SwingWorker<Integer, Void>{
         Timer t;
         int timeLeftInSec;
-        TimerTask(Timer t, int timeLeftInSec){
+        TimerWorker(Timer t, int timeLeftInSec){
             this.t = t;
             this.timeLeftInSec = timeLeftInSec;
         }
 
         @Override
-        public Void doInBackground() {
+        public Integer doInBackground() {
             int oldTime = timeLeftInSec;
             while(timeLeftInSec > 0){
                 try {
                     Thread.sleep(1000);
-                } catch (InterruptedException ignore) {}
+                } catch (InterruptedException ignore) {break;}
                 timeLeftInSec--;
                 switch(t){
                     case POMODORO:
-                        firePropertyChange("pomTime", oldTime, timeLeftInSec);
+                        firePropertyChange("pomTimeLeft", oldTime, timeLeftInSec);
+                        break;
+                    case GENERAL:
+                        firePropertyChange("genTimeLeft", oldTime, timeLeftInSec);
                         break;
                     default:
                         System.out.println("ERROR.");
                 }
                 oldTime = timeLeftInSec;
             }
-            return null;
+            return timeLeftInSec;
         }
 
         @Override
         public void done() {
-            System.out.println("Timer finished!");
         }
     }
 
@@ -55,12 +60,13 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
     private JLabel pomLabel;
     private JButton pomStartBtn;
     private JButton pomResetBtn;
-    private TimerTask pomTask;
+    private TimerWorker pomWorker;
 
     //general
     private JLabel genLabel;
     private JButton genStartBtn;
     private JButton genResetBtn;
+    private TimerWorker genWorker;
 
     //global
     private JButton globalStartBtn;
@@ -90,7 +96,10 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
 
         //Pomodoro
         pomLabel = new JLabel();
-        pomLabel.setText("Pomodoro: 25:00");
+        pomLabel.setText("Pomodoro: " + pomTimeLeft/60 + ":");
+        if(pomTimeLeft%60 < 10)
+            pomLabel.setText(pomLabel.getText() + "0");
+        pomLabel.setText(pomLabel.getText() + pomTimeLeft%60);
         pomLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         pomLabel.setForeground(Color.RED);
         c.insets = new Insets(10,10,0,0);
@@ -100,7 +109,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
         c.gridy = 0;
         panel.add(pomLabel, c);
 
-        pomStartBtn = new JButton("Start/Pause");
+        pomStartBtn = new JButton("Start");
         pomStartBtn.addActionListener(this);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(10,0,0,0);
@@ -110,6 +119,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
         panel.add(pomStartBtn, c);
 
         pomResetBtn = new JButton("Reset");
+        pomResetBtn.addActionListener(this);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(10,0,0,10);
         c.weightx = 0.5;
@@ -119,7 +129,10 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
 
         //General
         genLabel = new JLabel();
-        genLabel.setText("General Timer: 30:00");
+        genLabel.setText("General: " + genTimeLeft/60 + ":");
+        if(genTimeLeft%60 < 10)
+            genLabel.setText(genLabel.getText() + "0");
+        genLabel.setText(genLabel.getText() + genTimeLeft%60);
         genLabel.setFont(new Font("Verdana", Font.PLAIN, 18));
         c.insets = new Insets(10,10,0,0);
         c.weightx = 0.5;
@@ -128,7 +141,8 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
         c.gridy = 1;
         panel.add(genLabel, c);
 
-        genStartBtn = new JButton("Start/Pause");
+        genStartBtn = new JButton("Start");
+        genStartBtn.addActionListener(this);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(10,0,0,0);
         c.weightx = 0.5;
@@ -137,6 +151,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
         panel.add(genStartBtn, c);
 
         genResetBtn = new JButton("Reset");
+        genResetBtn.addActionListener(this);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(10,0,0,10); 
         c.weightx = 0.5;
@@ -146,6 +161,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
 
         //Global
         globalStartBtn = new JButton("Start/Pause All");
+        globalStartBtn.addActionListener(this);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.ipady = 0;    
         c.weighty = 1.0;   
@@ -157,6 +173,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
         panel.add(globalStartBtn, c);
 
         globalResetBtn = new JButton("Reset All");
+        globalResetBtn.addActionListener(this);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.ipady = 0;   
         c.weighty = 1.0; 
@@ -170,23 +187,86 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
         return panel;
     }
 
+    void StartPomodoro(){
+        if(pomWorker != null && !pomWorker.isDone()){
+            pomWorker.cancel(true);
+            pomStartBtn.setText("Start");
+            return;
+        }
+        pomWorker = new TimerWorker(Timer.POMODORO, pomTimeLeft);
+        pomWorker.addPropertyChangeListener(this);
+        pomWorker.execute();
+        pomStartBtn.setText("Pause");
+    }
+    void ResetPomodoro(){
+        if(pomWorker != null && !pomWorker.isDone()){
+            pomWorker.cancel(true);
+        }
+        pomTimeLeft = POMTIME;
+        pomLabel.setText("Pomodoro: " + pomTimeLeft/60 + ":");
+        if(pomTimeLeft%60 < 10)
+            pomLabel.setText(pomLabel.getText() + "0");
+        pomLabel.setText(pomLabel.getText() + pomTimeLeft%60);
+    }
+    void StartGeneral(){
+        if(genWorker != null && !genWorker.isDone()){
+            genWorker.cancel(true);
+            genStartBtn.setText("Start");
+            return;
+        }
+        genWorker = new TimerWorker(Timer.GENERAL, genTimeLeft);
+        genWorker.addPropertyChangeListener(this);
+        genWorker.execute();
+        genStartBtn.setText("Pause");
+    }
+    void ResetGeneral(){
+        if(genWorker != null && !genWorker.isDone()){
+            genWorker.cancel(true);
+        }
+        genTimeLeft = GENTIME;
+        genLabel.setText("General: " + genTimeLeft/60 + ":");
+        if(genTimeLeft%60 < 10)
+            genLabel.setText(genLabel.getText() + "0");
+        genLabel.setText(genLabel.getText() + genTimeLeft%60);
+    }
+
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == pomStartBtn){
-            pomTask = new TimerTask(Timer.POMODORO, pomTime);
-            pomTask.addPropertyChangeListener(this);
-            pomTask.execute();
+        if(e.getSource() == pomStartBtn)
+            StartPomodoro();
+        else if(e.getSource() == pomResetBtn)
+            ResetPomodoro();
+        else if(e.getSource() == genStartBtn)
+            StartGeneral();
+        else if(e.getSource() == genResetBtn)
+            ResetGeneral();
+        else if(e.getSource() == globalStartBtn){
+            StartPomodoro();
+            StartGeneral();
+        }
+        else if(e.getSource() == globalResetBtn){
+            ResetPomodoro();
+            ResetGeneral();
         }
     }
     
     @Override
     public void propertyChange(PropertyChangeEvent e) {
-        if (e.getPropertyName() == "pomTime") {
-            pomLabel.setText("Pomodoro: " + (int)e.getNewValue()/60 + ":");
-            if((int)e.getNewValue()%60 < 10)
+        if (e.getPropertyName() == "pomTimeLeft") {
+            pomTimeLeft = (int)e.getNewValue();
+            pomLabel.setText("Pomodoro: " + pomTimeLeft/60 + ":");
+            if(pomTimeLeft%60 < 10)
                 pomLabel.setText(pomLabel.getText() + "0");
-            pomLabel.setText(pomLabel.getText() + (int)e.getNewValue()%60);
-        } 
+            pomLabel.setText(pomLabel.getText() + pomTimeLeft%60);
+        }
+        else if (e.getPropertyName() == "genTimeLeft") {
+            genTimeLeft = (int)e.getNewValue();
+            genLabel.setText("General: " + genTimeLeft/60 + ":");
+            if(genTimeLeft%60 < 10)
+                genLabel.setText(genLabel.getText() + "0");
+            genLabel.setText(genLabel.getText() + genTimeLeft%60);
+        }
     }
 
     public static void main (String[] args){
