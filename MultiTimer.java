@@ -1,11 +1,31 @@
 import java.awt.*;
-import javax.swing.*;
-class MultiTimer {
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import javax.swing.SwingWorker; 
+class MultiTimer implements ActionListener, PropertyChangeListener{
+
+    class ToggleTimerTask extends SwingWorker<Void, Void>{
+        @Override
+        public Void doInBackground() {
+            firePropertyChange("label", "Pomodoro: 25:00", "Pomodoro: 10");
+            return null;
+        }
+        @Override
+        public void done() {}
+    }
 
     //pomodoro
     private JLabel pomLabel;
     private JButton pomStartBtn;
     private JButton pomResetBtn;
+    private ToggleTimerTask pomTask;
 
     //general
     private JLabel genLabel;
@@ -51,6 +71,7 @@ class MultiTimer {
         panel.add(pomLabel, c);
 
         pomStartBtn = new JButton("Start/Pause");
+        pomStartBtn.addActionListener(this);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(10,0,0,0);
         c.weightx = 0.5;
@@ -96,34 +117,50 @@ class MultiTimer {
         //Global
         globalStartBtn = new JButton("Start/Pause All");
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.ipady = 0;       //reset to default
-        c.weighty = 1.0;   //request any extra vertical space
-        c.anchor = GridBagConstraints.PAGE_END; //bottom of space
+        c.ipady = 0;    
+        c.weighty = 1.0;   
+        c.anchor = GridBagConstraints.PAGE_END;
         c.insets = new Insets(0,0,10,0);
-        c.gridx = 1;       //aligned with button 2
-        c.gridwidth = 1;   //2 columns wide
-        c.gridy = 2;       //third row
+        c.gridx = 1;     
+        c.gridwidth = 1;   
+        c.gridy = 2;       
         panel.add(globalStartBtn, c);
 
         globalResetBtn = new JButton("Reset All");
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.ipady = 0;       //reset to default
-        c.weighty = 1.0;   //request any extra vertical space
-        c.anchor = GridBagConstraints.PAGE_END; //bottom of space
-        c.insets = new Insets(0,0,10,10);  //top padding
-        c.gridx = 2;       //aligned with button 2
-        c.gridwidth = 1;   //2 columns wide
-        c.gridy = 2;       //third row
+        c.ipady = 0;   
+        c.weighty = 1.0; 
+        c.anchor = GridBagConstraints.PAGE_END; 
+        c.insets = new Insets(0,0,10,10);
+        c.gridx = 2;   
+        c.gridwidth = 1; 
+        c.gridy = 2; 
         panel.add(globalResetBtn, c);
         
         return panel;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == pomStartBtn){
+            System.out.println("Pom start button pressed!");
+            pomTask = new ToggleTimerTask();
+            pomTask.addPropertyChangeListener(this);
+            pomTask.execute();
+        }
+    }
+    
+    public void propertyChange(PropertyChangeEvent e) {
+        if (e.getPropertyName() == "label") {
+            System.out.println((String)e.getNewValue());
+        } 
     }
 
     public static void main (String[] args){
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                MultiTimer t = new MultiTimer();
+                MultiTimer timer = new MultiTimer();
             }
         });
     }
