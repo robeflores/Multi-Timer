@@ -14,7 +14,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
         POMODORO, GENERAL
     }
 
-    final int POMTIME = 5;
+    final int POMTIME = 1500;
     final int GENTIME = 1800;
 
     int pomTimeLeft = POMTIME;
@@ -34,7 +34,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
             while(timeLeftInSec > 0){
                 try {
                     Thread.sleep(1000);
-                } catch (InterruptedException ignore) {break;}
+                } catch (InterruptedException e) {break;}
                 timeLeftInSec--;
                 switch(t){
                     case POMODORO:
@@ -53,15 +53,7 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
 
         @Override
         public void done() {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    frame.toFront();
-                    frame.setVisible(true);
-                    frame.requestFocus();
-                    frame.repaint();
-                }
-            });
+            showWindow();
         }
     }
 
@@ -241,6 +233,19 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
             genLabel.setText(genLabel.getText() + "0");
         genLabel.setText(genLabel.getText() + genTimeLeft%60);
         genStartBtn.setText("Start");
+    }
+
+    void showWindow(){
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                frame.setVisible(true);
+                frame.setAlwaysOnTop(true);
+                frame.toFront();
+                frame.requestFocus();
+                frame.setAlwaysOnTop(false);
+            }
+        });
     }
 
 
