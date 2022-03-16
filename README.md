@@ -1,5 +1,2 @@
 # Multi-Timer
-- multiple timer desktop app made with Java
-
-## Dependencies
-- Swing
+- multiple timer desktop app made with Java and the Swing toolkit.
