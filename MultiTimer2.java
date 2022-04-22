@@ -10,7 +10,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.SwingWorker;
 
 class MultiTimer implements ActionListener, PropertyChangeListener{
-    private enum T {
+    private enum Timer {
         POMODORO, GENERAL
     }
 
@@ -19,6 +19,43 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
 
     int pomTimeLeft = POMTIME;
     int genTimeLeft = GENTIME;
+
+    class TimerWorker extends SwingWorker<Integer, Void>{
+        Timer t;
+        int timeLeftInSec;
+        TimerWorker(Timer t, int timeLeftInSec){
+            this.t = t;
+            this.timeLeftInSec = timeLeftInSec;
+        }
+
+        @Override
+        public Integer doInBackground() {
+            int oldTime = timeLeftInSec;
+            while(timeLeftInSec > 0){
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {break;}
+                timeLeftInSec--;
+                switch(t){
+                    case POMODORO:
+                        firePropertyChange("pomTimeLeft", oldTime, timeLeftInSec);
+                        break;
+                    case GENERAL:
+                        firePropertyChange("genTimeLeft", oldTime, timeLeftInSec);
+                        break;
+                    default:
+                        System.out.println("ERROR.");
+                }
+                oldTime = timeLeftInSec;
+            }
+            return timeLeftInSec;
+        }
+
+        @Override
+        public void done() {
+            showWindow();
+        }
+    }
 
     private JFrame frame;
 
@@ -257,130 +294,5 @@ class MultiTimer implements ActionListener, PropertyChangeListener{
                 MultiTimer timer = new MultiTimer();
             }
         });
-    }
-}
-
-
-class Timer implements ActionListener, PropertyChangeListener{
-    private JLabel label;
-    private JButton startBtn;
-    private JButton resetBtn;
-    private TimerWorker worker;
-
-    final int TIME = 1500;
-    int timeLeft = TIME;
-
-    class TimerWorker extends SwingWorker<Integer, Void>{
-        Timer t;
-        int timeLeftInSec;
-        TimerWorker(Timer t, int timeLeftInSec){
-            this.t = t;
-            this.timeLeftInSec = timeLeftInSec;
-        }
-    
-        @Override
-        public Integer doInBackground() {
-            int oldTime = timeLeftInSec;
-            while(timeLeftInSec > 0){
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {break;}
-                timeLeftInSec--;
-                switch(t){
-                        firePropertyChange("timeLeft", oldTime, timeLeftInSec);
-                        break;
-                    default:
-                        System.out.println("ERROR.");
-                }
-                oldTime = timeLeftInSec;
-            }
-            return timeLeftInSec;
-        }
-    
-        @Override
-        public void done() {
-            showWindow();
-        }
-    }
-
-
-    Timer(JPanel panel){
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.ipadx = 0;
-
-        label = new JLabel();
-        label.setText("Pomodoro: " + timeLeft/60 + ":");
-        if(timeLeft%60 < 10)
-            label.setText(label.getText() + "0");
-        label.setText(label.getText() + timeLeft%60);
-        label.setFont(new Font("Verdana", Font.PLAIN, 18));
-        label.setForeground(Color.RED);
-        c.insets = new Insets(10,10,0,0);
-        c.weightx = 0.5;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 0;
-        panel.add(label, c);
-
-        startBtn = new JButton("Start");
-        startBtn.addActionListener(this);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(10,0,0,0);
-        c.weightx = 0.5;
-        c.gridx = 1;
-        c.gridy = 0;
-        panel.add(startBtn, c);
-
-        resetBtn = new JButton("Reset");
-        resetBtn.addActionListener(this);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(10,0,0,10);
-        c.weightx = 0.5;
-        c.gridx = 2;
-        c.gridy = 0;
-        panel.add(resetBtn, c);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if(e.getSource() == startBtn)
-            StartTimer();
-        else if(e.getSource() == resetBtn)
-            ResetTimer();
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent e) {
-        if (e.getPropertyName() == "pomTimeLeft") {
-            timeLeft = (int)e.getNewValue();
-            label.setText("Pomodoro: " + timeLeft/60 + ":");
-            if(timeLeft%60 < 10)
-                label.setText(label.getText() + "0");
-            label.setText(label.getText() + timeLeft%60);
-        }
-    }
-
-    void StartTimer(){
-        if(worker != null && !worker.isDone()){
-            worker.cancel(true);
-            startBtn.setText("Start");
-            return;
-        }
-        worker = new TimerWorker(Timer.POMODORO, pomTimeLeft);
-        worker.addPropertyChangeListener(this);
-        worker.execute();
-        startBtn.setText("Pause");
-    }
-    void ResetTimer(){
-        if(worker != null && !worker.isDone()){
-            worker.cancel(true);
-        }
-        timeLeft = TIME;
-        label.setText("Pomodoro: " + timeLeft/60 + ":");
-        if(timeLeft%60 < 10)
-            label.setText(label.getText() + "0");
-        label.setText(label.getText() + timeLeft%60);
-        startBtn.setText("Start");
     }
 }
