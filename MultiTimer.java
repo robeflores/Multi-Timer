@@ -12,7 +12,7 @@ import javax.swing.SwingWorker;
 class MultiTimer implements ActionListener{
 
     private JFrame frame;
-    private JPanel panel;
+    public JPanel panel;
 
     //global
     private JButton globalStartBtn;
@@ -23,8 +23,8 @@ class MultiTimer implements ActionListener{
 
     public MultiTimer(){
         createJFrame();
-        pom = new Timer(panel, 0);
-        //gen = new Timer(panel, 1);
+        pom = new Timer(this, 0, "Pomodoro", 1500);
+        gen = new Timer(this, 1, "General", 1800);
     }
 
     private void createJFrame() {
@@ -74,7 +74,7 @@ class MultiTimer implements ActionListener{
         return panel;
     }
 
-    void showWindow(){
+    public void showWindow(){
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -91,12 +91,12 @@ class MultiTimer implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == globalStartBtn){
-            //StartPomodoro();
-            //StartGeneral();
+            pom.StartTimer();
+            gen.StartTimer();
         }
         else if(e.getSource() == globalResetBtn){
-            //ResetPomodoro();
-            //ResetGeneral();
+            pom.ResetTimer();
+            gen.ResetTimer();
         }
     }
 
@@ -117,8 +117,12 @@ class Timer implements ActionListener, PropertyChangeListener{
     private JButton resetBtn;
     private TimerWorker worker;
 
-    final int TIME = 1500;
-    int timeLeft = TIME;
+    MultiTimer t;
+
+    int time;
+    int timeLeft;
+
+    String labelText;
 
     class TimerWorker extends SwingWorker<Integer, Void>{
         int timeLeftInSec;
@@ -142,18 +146,23 @@ class Timer implements ActionListener, PropertyChangeListener{
     
         @Override
         public void done() {
-            //showWindow();
+            t.showWindow();
         }
     }
 
 
-    Timer(JPanel panel, int y){
+    Timer(MultiTimer t, int y, String labelText, int time){
+        this.t = t;
+        this.labelText = labelText;
+        this.time = time;
+
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.ipadx = 0;
 
         label = new JLabel();
-        label.setText("Pomodoro: " + timeLeft/60 + ":");
+        timeLeft = this.time;
+        label.setText(this.labelText + ": " + timeLeft/60 + ":");
         if(timeLeft%60 < 10)
             label.setText(label.getText() + "0");
         label.setText(label.getText() + timeLeft%60);
@@ -164,7 +173,7 @@ class Timer implements ActionListener, PropertyChangeListener{
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
         c.gridy = y;
-        panel.add(label, c);
+        t.panel.add(label, c);
 
         startBtn = new JButton("Start");
         startBtn.addActionListener(this);
@@ -173,7 +182,7 @@ class Timer implements ActionListener, PropertyChangeListener{
         c.weightx = 0.5;
         c.gridx = 1;
         c.gridy = y;
-        panel.add(startBtn, c);
+        t.panel.add(startBtn, c);
 
         resetBtn = new JButton("Reset");
         resetBtn.addActionListener(this);
@@ -182,7 +191,7 @@ class Timer implements ActionListener, PropertyChangeListener{
         c.weightx = 0.5;
         c.gridx = 2;
         c.gridy = y;
-        panel.add(resetBtn, c);
+        t.panel.add(resetBtn, c);
     }
 
     @Override
@@ -197,14 +206,14 @@ class Timer implements ActionListener, PropertyChangeListener{
     public void propertyChange(PropertyChangeEvent e) {
         if (e.getPropertyName() == "timeLeft") {
             timeLeft = (int)e.getNewValue();
-            label.setText("Pomodoro: " + timeLeft/60 + ":");
+            label.setText(labelText + ": " + timeLeft/60 + ":");
             if(timeLeft%60 < 10)
                 label.setText(label.getText() + "0");
             label.setText(label.getText() + timeLeft%60);
         }
     }
 
-    void StartTimer(){
+    public void StartTimer(){
         if(worker != null && !worker.isDone()){
             worker.cancel(true);
             startBtn.setText("Start");
@@ -215,12 +224,12 @@ class Timer implements ActionListener, PropertyChangeListener{
         worker.execute();
         startBtn.setText("Pause");
     }
-    void ResetTimer(){
+    public void ResetTimer(){
         if(worker != null && !worker.isDone()){
             worker.cancel(true);
         }
-        timeLeft = TIME;
-        label.setText("Pomodoro: " + timeLeft/60 + ":");
+        timeLeft = time;
+        label.setText(labelText + ": " + timeLeft/60 + ":");
         if(timeLeft%60 < 10)
             label.setText(label.getText() + "0");
         label.setText(label.getText() + timeLeft%60);
